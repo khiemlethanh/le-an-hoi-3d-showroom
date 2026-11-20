@@ -1,1 +1,4 @@
 .DS_Store
+concepts/
+plans/
+__pycache__/

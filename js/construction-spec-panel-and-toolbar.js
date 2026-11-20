@@ -1,76 +1,86 @@
-import { PANELS, COLORS, COLOR_NAMES, TENT, PEDESTALS, PEDESTAL_RADIUS, TRAP_NAMES, SIGNAGE, VIEWPOINTS, PANEL_DEPTH } from './scene-config.js';
-import { panelTop } from './backdrop-wave-panels.js';
+import {
+  COLORS, TENT, BACKDROP, BACKDROP_HALF_WIDTH, LETTERING, TRAY, TRAYS, TRAP_NAMES, VASES, FLOWER_STRIP, VIEWPOINTS, screenCenterX,
+} from './scene-config.js';
 
 const fmt = n => n.toFixed(2).replace('.', ',');
+const cm = n => Math.round(n * 100);
+const swatch = (name, hex) => `<span class="swatch" style="background:${hex}"></span>${name} <code>${hex}</code>`;
 
-// Dimensions are measured from the same config the 3D scene is built from.
-function panelRows() {
-  return PANELS.map(p => {
-    let max = 0, min = Infinity;
-    for (let x = p.x0 + 0.5; x <= p.x1 - 0.5; x += 0.05) {
-      const h = panelTop(p, x);
-      max = Math.max(max, h); min = Math.min(min, h);
-    }
-    return `<tr><td>${p.name}</td><td><span class="swatch" style="background:${COLORS[p.color]}"></span>${COLOR_NAMES[p.color]}<br><code>${COLORS[p.color]}</code></td>
-      <td>${fmt(p.x1 - p.x0)} m</td><td>${fmt(min)} – ${fmt(max)} m</td></tr>`;
-  }).join('');
-}
-
+// Every number below is read from the same config the 3D scene is built from.
 function specHtml() {
-  const width = Math.max(...PANELS.map(p => p.x1)) - Math.min(...PANELS.map(p => p.x0));
-  const pedestals = PEDESTALS.map((p, i) => `<li>Đôn ${i + 1}: cao ${fmt(p.height)} m, ${COLOR_NAMES[p.color].toLowerCase()} — tráp <b>${TRAP_NAMES[p.trap]}</b></li>`).join('');
+  const { wall, panel, screens, screenGap, lattice } = BACKDROP;
+  const screenRows = screens.map((s, i) => `<tr><td>Bình phong ${i + 1} (từ giữa ra)</td><td>${fmt(s.width)} × ${fmt(s.height)} m</td>
+    <td>tâm cách trục giữa ${fmt(screenCenterX(i))} m</td><td>nhô ${cm(s.offset)} cm</td></tr>`).join('');
+  const left = TRAYS.filter(t => t.x < 0).sort((a, b) => b.x - a.x), right = TRAYS.filter(t => t.x > 0);
+  const trayList = list => list.map(t => `${TRAP_NAMES[t.trap]} (${fmt(Math.abs(t.x))} m)`).join(', ');
+  const lowestText = LETTERING.lines.at(-1);
+
   return `
   <h2>Thông số thi công</h2>
-  <p class="note">Kích thước đo trực tiếp từ mô hình 3D. Vật liệu là gợi ý — đơn vị thi công cần kiểm tra lại theo mặt bằng và tải trọng thực tế.</p>
-  <h3>1. Tổng thể</h3>
-  <ul>
-    <li>Rạp: ${TENT.halfWidth * 2} × ${TENT.zFront - TENT.zBack} m, cao mép ${fmt(TENT.eaveHeight)} m, cao đỉnh ${fmt(TENT.ridgeHeight)} m</li>
-    <li>Phông nền: rộng tổng ${fmt(width)} m, 6 lớp vách lệch nhau 35–45 cm theo chiều sâu</li>
-    <li>Bục sân khấu: 15,2 × 3,3–3,8 m, cao 12 cm, mép trước uốn cong, LED chân bục</li>
+  <p class="note">Kích thước lấy từ mô hình 3D. Vật liệu là gợi ý, đơn vị thi công cần kiểm tra lại theo mặt bằng và tải trọng thực tế.
+    <a href="docs/ban-ve-kich-thuoc-phong-le-an-hoi.svg" target="_blank" rel="noopener">Mở bản vẽ kích thước</a></p>
+
+  <h3>1. Bảng màu</h3>
+  <ul class="plain">
+    <li>${swatch('Vàng kem (tường sau)', COLORS.wall)}</li>
+    <li>${swatch('Kem (bình phong)', COLORS.cream)}</li>
+    <li>${swatch('Vàng bơ (tấm tên)', COLORS.butter)}</li>
+    <li>${swatch('Đỏ đất (điểm nhấn)', COLORS.terracotta)}</li>
+    <li>${swatch('Đồng xước', COLORS.brass)}</li>
   </ul>
-  <h3>2. Các lớp vách (từ sau ra trước)</h3>
-  <table><thead><tr><th>Lớp</th><th>Màu</th><th>Rộng</th><th>Cao</th></tr></thead><tbody>${panelRows()}</tbody></table>
+
+  <h3>2. Phông</h3>
+  <table><tbody>
+    <tr><td>Tường sau</td><td>${fmt(wall.width)} × ${fmt(wall.height)} m</td><td>phẳng, sơn vàng kem mờ</td><td>mốc 0</td></tr>
+    <tr><td>Tấm tên ở giữa</td><td>${fmt(panel.width)} × ${fmt(panel.height)} m</td><td>khung đồng ${cm(panel.frame)} cm, chỉ đỏ đất ${panel.inlay * 1000} mm lùi vào ${cm(panel.inlayInset)} cm</td><td>nhô ${cm(panel.offset)} cm</td></tr>
+    ${screenRows}
+  </tbody></table>
   <ul>
-    <li>Vách dày ${PANEL_DEPTH * 100} cm: khung sắt hộp 20×20 uốn theo biên dạng, bọc PVC foam 5 mm hoặc MDF chống ẩm cắt CNC, sơn PU mờ</li>
-    <li>Viền: nẹp inox gương / nẹp nhựa mạ bạc 20 mm chạy dọc mép vách</li>
-    <li>LED hắt khe: LED dây 4000K 12V dán sau mép vách, lùi 3–5 cm; mỗi lớp một nguồn riêng</li>
-    <li>Chân vách cần đối trọng hoặc bắt xuống bục; vách cao trên 3 m nên giằng sau lưng</li>
+    <li>Mỗi bên 3 tấm bình phong, khe giữa các tấm ${cm(screenGap)} cm, tổng bề rộng cụm bình phong ${fmt(BACKDROP_HALF_WIDTH * 2)} m</li>
+    <li>Hoa văn: ô ${cm(lattice.cell)} cm, nan ${lattice.strip * 1000} mm, khung ${cm(lattice.frame)} cm, vòng song hỷ Ø ${cm(lattice.medallionRadius * 2)} cm ở 1/3 trên. Gợi ý cắt CNC trên MDF chống ẩm 12 mm hoặc PVC foam 10 mm, sơn kem mờ</li>
+    <li>Sau hoa văn: mica mờ sữa 3 mm, LED 3000K hắt từ sau; ban ngày cần đèn đủ mạnh, nếu không hoa văn sẽ chìm</li>
   </ul>
-  <h3>3. Chữ và song hỷ</h3>
+
+  <h3>3. Chữ</h3>
   <ul>
-    <li>Chữ nổi “${SIGNAGE.text}”: ngang khoảng 4,1 m, cao chữ 45 cm, dày 9 cm; mặt mica hồng <code>${COLORS.rose}</code>, thành inox bạc, LED hắt chân chữ; tâm chữ cao ${fmt(SIGNAGE.textY)} m</li>
-    <li>Song hỷ tối giản: thanh mica hồng dày 5 cm, vòng inox Ø ${fmt(SIGNAGE.ringRadius * 2)} m, tâm cao ${fmt(SIGNAGE.symbolY)} m</li>
+    <li>Song hỷ đồng: cao ${cm(LETTERING.seal.size * 0.86)} cm, tâm cao ${fmt(LETTERING.seal.y)} m</li>
+    ${LETTERING.lines.map(l => `<li>“${l.text}”: chiều cao chữ hoa ${cm(l.cap)} cm, tâm dòng cao ${fmt(l.y)} m</li>`).join('')}
+    <li>Chữ nổi dày ${cm(LETTERING.depth)} cm, mặt đồng xước, kiểu serif tương phản cao (Playfair Display)</li>
+    <li>Mép dưới dòng “${lowestText.text}” cao khoảng ${fmt(lowestText.y - lowestText.cap * 0.7)} m, trên đầu người đứng trước phông</li>
   </ul>
-  <h3>4. Hoa tươi</h3>
+
+  <h3>4. Tráp (9 tráp, một hàng)</h3>
   <ul>
-    <li>Cắm cụm tự do, bất đối xứng: 2 cụm lớn chân vách, 2 cụm trên vai sóng, 2 cụm ôm vòng song hỷ, 2 cụm nhỏ mép bục</li>
-    <li>Lan hồ điệp trắng họng hồng (cành vươn cong), hồng môn hồng – trắng – cam đào, hoa hồng pastel (hồng phấn, kem, đào, tím nhạt)</li>
-    <li>Ước lượng: khoảng 170 bông hồng, 37 bông hồng môn, 19 cành lan hồ điệp, lá nền xanh</li>
+    <li>Mâm tròn Ø ${cm(TRAY.diameter)} cm, thành cao ${cm(TRAY.rim)} cm, sơn đỏ đất viền vàng, nơ lụa kem</li>
+    <li>Giá khung đồng ${cm(TRAY.standWidth)} × ${cm(TRAY.standWidth)} × ${cm(TRAY.standHeight)} cm, cao bằng nhau, đặt cách tường sau ${cm(TRAY.rowOffset)} cm</li>
+    <li>Bên trái 4 tráp (cách trục giữa): ${trayList(left)}</li>
+    <li>Bên phải 5 tráp (cách trục giữa): ${trayList(right)}</li>
+    <li>Khoảng trống giữa hai nhóm ${fmt(TRAY.firstX * 2 - TRAY.diameter)} m cho cô dâu chú rể đứng</li>
+    <li>Giá mảnh nên có đế nặng hoặc dán cố định xuống sàn</li>
   </ul>
-  <h3>5. Đôn và tráp (7 tráp)</h3>
+
+  <h3>5. Hoa</h3>
   <ul>
-    <li>Đôn trụ tròn Ø ${PEDESTAL_RADIUS * 200} cm, hai đai inox bạc, xếp vòng cung trước bục, cách nhau 1,3 m</li>
-    ${pedestals}
-    <li>Tráp: đế sơn mài đỏ Ø 50 cm viền vàng, chụp mica trong Ø 46 × cao 34 cm (xen kẽ tròn và lục giác), nơ lụa đỏ</li>
+    <li>Dải hoa thấp dọc chân bình phong: cao ${cm(FLOWER_STRIP.height)} cm, sâu ${cm(FLOWER_STRIP.depth)} cm, mỗi bên dài ${fmt(FLOWER_STRIP.to - FLOWER_STRIP.from)} m; hồng kem, vàng bơ, khoảng 1/7 đỏ đất</li>
+    <li>Hai bình gốm đất nung cao ${cm(VASES[0].height * VASES[1].scale)}–${cm(VASES[0].height * VASES[0].scale)} cm, tâm cách trục giữa ${fmt(Math.abs(VASES[0].x))} m; cành khô nở hoa cao tới khoảng 2,5 m, lan hồ điệp kem rủ; bình trái nhỉnh hơn bình phải</li>
   </ul>
-  <h3>6. Trần và ánh sáng</h3>
+
+  <h3>6. Rạp</h3>
   <ul>
-    <li>Trần thả 20 dải voan trắng khổ 1,25 m, võng 50–95 cm từ đỉnh xuống mép rạp</li>
-    <li>Rèm voan túm tại 8 cột, đai bạc ở độ cao 1,7 m</li>
-    <li>Ban ngày dùng sáng tự nhiên, mở thoáng hai bên; buổi tối LED hắt khe là nguồn sáng chính của phông</li>
+    <li>Rạp ${TENT.halfWidth * 2} × ${TENT.zFront - TENT.zBack} m, cao mép ${fmt(TENT.eaveHeight)} m, đỉnh ${fmt(TENT.ridgeHeight)} m; tấm tên cao ${fmt(panel.height)} m nên mép rạp cần từ 3,6 m</li>
+    <li>Trần thả voan trắng, rèm voan túm tại cột</li>
   </ul>`;
 }
 
 export function initUi({ onViewpoint, onToggleEvening }) {
   const $ = id => document.getElementById(id);
   const views = $('viewpoints');
-  VIEWPOINTS.forEach((view, i) => {
+  VIEWPOINTS.forEach(view => {
     const button = document.createElement('button');
     button.type = 'button';
     button.textContent = view.name;
     button.addEventListener('click', () => onViewpoint(view));
     views.appendChild(button);
-    if (i === 0) button.dataset.default = '1';
   });
 
   const spec = $('spec-panel');

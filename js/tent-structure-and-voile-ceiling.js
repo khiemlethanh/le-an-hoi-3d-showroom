@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { TENT, SEATING, stageFrontZ } from './scene-config.js';
+import { TENT, SEATING } from './scene-config.js';
 
 const { halfWidth: HW, zBack, zFront, eaveHeight: EAVE, ridgeHeight: RIDGE } = TENT;
 const LENGTH = zFront - zBack, ZMID = (zFront + zBack) / 2;
@@ -12,23 +12,13 @@ function mesh(geometry, material, x = 0, y = 0, z = 0, shadows = true) {
   return m;
 }
 
-function buildFloorAndStage(group, mats) {
+function buildFloor(group, mats) {
   const floor = mesh(new THREE.BoxGeometry(HW * 2 + 0.6, 0.06, LENGTH + 0.6), mats.floor, 0, -0.03, ZMID);
   floor.castShadow = false;
   const runner = mesh(new THREE.PlaneGeometry(1.6, 9.4).rotateX(-Math.PI / 2), mats.runner, 0, 0.004, 4.1);
   runner.castShadow = false;
 
-  // Low stage; shape y maps to world -z after the rotation.
-  const s = new THREE.Shape();
-  s.moveTo(-7.6, 6.2); s.lineTo(7.6, 6.2); s.lineTo(7.6, 2.9); s.quadraticCurveTo(0, 1.9, -7.6, 2.9); s.closePath();
-  const stageGeo = new THREE.ExtrudeGeometry(s, { depth: 0.12, bevelEnabled: false, curveSegments: 40 }).rotateX(-Math.PI / 2);
-  const stage = mesh(stageGeo, mats.stage);
-
-  // LED line tucked under the stage lip.
-  const lip = [];
-  for (let x = -7.6; x <= 7.601; x += 0.4) lip.push(new THREE.Vector3(x, 0.025, stageFrontZ(x) + 0.015));
-  const lipLed = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(lip), 80, 0.014, 6), mats.led);
-  group.add(floor, runner, stage, lipLed);
+  group.add(floor, runner);
 }
 
 function buildFrameAndRoof(group, mats) {
@@ -45,7 +35,7 @@ function buildFrameAndRoof(group, mats) {
       const rafter = mesh(rafterGeo, mats.frame, (side * HW) / 2, (EAVE + RIDGE) / 2, z);
       rafter.rotation.z = -side * tilt;
       group.add(rafter, mesh(drapeGeo, mats.voile, side * HW, 0, z, false));
-      group.add(mesh(new THREE.TorusGeometry(0.1, 0.02, 8, 20).rotateX(Math.PI / 2), mats.silver, side * HW, 1.7, z));
+      group.add(mesh(new THREE.TorusGeometry(0.1, 0.02, 8, 20).rotateX(Math.PI / 2), mats.brass, side * HW, 1.7, z));
     }
   }
   const beamGeo = new THREE.BoxGeometry(0.1, 0.1, LENGTH);
@@ -90,7 +80,7 @@ function buildSeating(group, mats) {
   const sashGeo = part(0.46, 0.1, 0.05, 0, 0.82, 0.2);
   const count = SEATING.cols * SEATING.rows * 2;
   const chairs = new THREE.InstancedMesh(chairGeo, mats.chair, count);
-  const sashes = new THREE.InstancedMesh(sashGeo, mats.pink, count);
+  const sashes = new THREE.InstancedMesh(sashGeo, mats.terracotta, count);
   const m = new THREE.Matrix4();
   let n = 0;
   for (const side of [-1, 1]) for (let c = 0; c < SEATING.cols; c++) for (let r = 0; r < SEATING.rows; r++) {
@@ -121,7 +111,7 @@ function buildGarden(group, mats) {
 
 export function buildTent(mats) {
   const group = new THREE.Group();
-  buildFloorAndStage(group, mats);
+  buildFloor(group, mats);
   buildFrameAndRoof(group, mats);
   buildSeating(group, mats);
   buildGarden(group, mats);

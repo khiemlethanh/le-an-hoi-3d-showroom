@@ -2,7 +2,8 @@ import * as THREE from 'three';
 import { FLOWER_CLUSTERS } from './scene-config.js';
 import * as G from './flower-geometries.js';
 
-const ROSE_COLORS = ['#fbd0dc', '#fde3d2', '#fff4e4', '#f6b3c8', '#f3d7ee', '#fbe9b0'];
+// Mostly cream and butter yellow, with roughly one terracotta bloom in seven.
+const ROSE_COLORS = ['#fff6e0', '#fbe7a8', '#f6d77a', '#fff9ee', '#f3c98b', '#c96a4a', '#fff1cf'];
 const ANTH_COLORS = ['#ff86ad', '#ffffff', '#ff9f8f', '#ffc2d4'];
 const LEAF_COLORS = ['#58894a', '#6f9c5a', '#86ad72', '#4d7a45'];
 

@@ -5,16 +5,17 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { VIEWPOINTS } from './scene-config.js';
 import { makeMaterials } from './materials.js';
-import { buildBackdrop } from './backdrop-wave-panels.js';
-import { buildSignage } from './backdrop-text-and-double-happiness.js';
+import { buildBackdrop } from './backdrop-lattice-screens-and-name-panel.js';
+import { buildSignage } from './name-lettering-and-brass-seal.js';
 import { buildFlowers } from './flower-clusters.js';
-import { buildPedestals } from './pedestals-and-trap-gift-trays.js';
+import { buildTrays } from './brass-stands-and-small-trap-trays.js';
+import { buildVases } from './terracotta-vases-with-blossom-branches.js';
 import { buildTent } from './tent-structure-and-voile-ceiling.js';
 import { buildLighting } from './daylight-sky-and-led-lighting.js';
 import { createWalkControls } from './first-person-walk-controls.js';
 import { initUi } from './construction-spec-panel-and-toolbar.js';
 
-// Only LED emissives exceed this HDR level, so sun-lit white walls never bloom.
+// Sun-lit cream walls stay below this HDR level, so only the brightest highlights bloom.
 const BLOOM_THRESHOLD = 4;
 
 function start() {
@@ -31,7 +32,7 @@ function start() {
   const mats = makeMaterials();
   const lighting = buildLighting(scene, renderer, mats);
   const tent = buildTent(mats);
-  scene.add(tent.group, buildBackdrop(mats), buildFlowers(), buildPedestals(mats));
+  scene.add(tent.group, buildBackdrop(mats), buildFlowers(), buildTrays(mats), buildVases(mats));
   buildSignage(mats).then(signage => scene.add(signage)).catch(err => console.error('Signage failed', err));
 
   // HDR + MSAA target so bloom can isolate the LEDs without losing antialiasing.

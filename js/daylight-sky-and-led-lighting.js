@@ -2,12 +2,12 @@ import * as THREE from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { COLORS } from './scene-config.js';
 
-// Day = bright natural light; evening = dim sky so the LED coves take over.
+// Day = bright natural light; evening = dim sky so the backlit screens take over.
 const MODES = {
   day: { skyTop: '#5fa8ee', skyBottom: '#eaf5ff', sun: 2.3, sunColor: '#fff1d8', hemi: 0.42, env: 0.35,
-    wash: 0, glow: 0.45, roof: 0.55, voile: 0.3, exposure: 1.0, bloom: 0.35 },
+    wash: 0, glow: 1.0, roof: 0.55, voile: 0.3, exposure: 1.0, bloom: 0.35 },
   evening: { skyTop: '#0b1230', skyBottom: '#c9806a', sun: 0.1, sunColor: '#9fb4ff', hemi: 0.16, env: 0.12,
-    wash: 3.2, glow: 0.6, roof: 0.01, voile: 0.01, exposure: 1.0, bloom: 0.5 },
+    wash: 3.2, glow: 1.5, roof: 0.01, voile: 0.01, exposure: 1.0, bloom: 0.5 },
 };
 
 function buildSkyDome() {
@@ -40,10 +40,10 @@ export function buildLighting(scene, renderer, mats) {
   sun.shadow.bias = -0.0004;
   sun.shadow.normalBias = 0.03;
 
-  // Warm fill standing in for the LED coves washing the walls.
+  // Warm fill standing in for the light spilling out of the backlit lattice screens.
   const washes = [-4.2, 0, 4.2].map(x => {
     const light = new THREE.PointLight(COLORS.led, 0, 10, 2);
-    light.position.set(x, 2.4, -3.3);
+    light.position.set(x, 2.2, -3.4);
     return light;
   });
   scene.add(sky, hemi, sun, sun.target, ...washes);
@@ -57,7 +57,7 @@ export function buildLighting(scene, renderer, mats) {
     hemi.intensity = m.hemi;
     scene.environmentIntensity = m.env;
     washes.forEach(light => { light.intensity = m.wash; });
-    mats.ledGlow.color.copy(ledBase).multiplyScalar(m.glow);
+    mats.backlight.color.copy(ledBase).multiplyScalar(m.glow);
     mats.roof.emissiveIntensity = m.roof;
     mats.voile.emissiveIntensity = m.voile;
     renderer.toneMappingExposure = m.exposure;

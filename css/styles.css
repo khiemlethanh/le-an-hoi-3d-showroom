@@ -1,15 +1,14 @@
 :root {
-  --ink: #4a2f3a;
-  --ink-soft: #7c626c;
-  --rose: #d9547f;
-  --rose-soft: #fbe3ea;
-  --paper: rgba(255, 252, 247, 0.9);
-  --line: rgba(74, 47, 58, 0.14);
+  --ink: #3d2b24;
+  --ink-soft: #7a665c;
+  --rose: #b5533c;
+    --paper: rgba(255, 252, 247, 0.9);
+  --line: rgba(61, 43, 36, 0.16);
   --font: "Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
 * { box-sizing: border-box; }
-html, body { margin: 0; height: 100%; overflow: hidden; background: #eaf5ff; color: var(--ink); font-family: var(--font); }
+html, body { margin: 0; height: 100%; overflow: hidden; background: #f6efdc; color: var(--ink); font-family: var(--font); }
 
 #scene { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; outline: none; }
 #scene.dragging { cursor: grabbing; }
@@ -23,11 +22,10 @@ button:hover { background: #fff; }
 button:active { transform: scale(0.97); }
 button:focus-visible { outline: 2px solid var(--rose); outline-offset: 2px; }
 button.primary { background: var(--rose); border-color: var(--rose); color: #fff; font-weight: 600; }
-button.primary:hover { background: #c94470; }
+button.primary:hover { background: #9f4631; }
 
 .title { position: fixed; top: max(14px, env(safe-area-inset-top)); left: 16px; pointer-events: none; text-shadow: 0 1px 10px rgba(255, 255, 255, 0.9); }
-.title h1 { margin: 0; font: 800 22px/1.1 Montserrat, var(--font); letter-spacing: 0.04em; text-transform: uppercase; }
-.title h1 span { color: var(--rose); }
+.title h1 { margin: 0; font: 600 24px/1.1 "Playfair Display", Georgia, serif; }
 .title p { margin: 4px 0 0; font-size: 13px; color: var(--ink-soft); }
 
 .toolbar {
@@ -60,10 +58,12 @@ button.primary:hover { background: #c94470; }
 }
 .spec-panel.open { transform: none; }
 .spec-panel .close { position: sticky; top: 0; float: right; width: 40px; padding: 0; font-size: 22px; }
-.spec-panel h2 { margin: 0 0 6px; font: 800 20px Montserrat, var(--font); }
+.spec-panel h2 { margin: 0 0 6px; font: 600 22px "Playfair Display", Georgia, serif; }
 .spec-panel h3 { margin: 20px 0 6px; font-size: 14px; font-weight: 600; color: var(--rose); }
 .spec-panel ul { margin: 0; padding-left: 18px; }
 .spec-panel li { margin: 3px 0; }
+.spec-panel ul.plain { list-style: none; padding-left: 0; }
+.spec-panel a { color: var(--rose); font-weight: 600; }
 .spec-panel .note { margin: 0; font-size: 12.5px; color: var(--ink-soft); }
 .spec-panel table { width: 100%; border-collapse: collapse; margin: 4px 0 10px; font-size: 12.5px; font-variant-numeric: tabular-nums; }
 .spec-panel th, .spec-panel td { text-align: left; padding: 6px 6px 6px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
@@ -73,13 +73,12 @@ button.primary:hover { background: #c94470; }
 
 .intro {
   position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; padding: 16px;
-  background: rgba(255, 244, 247, 0.55); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); transition: opacity 0.4s, visibility 0.4s;
+  background: rgba(250, 242, 222, 0.6); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); transition: opacity 0.4s, visibility 0.4s;
 }
 .intro.hidden { opacity: 0; visibility: hidden; }
 .intro-card { max-width: 440px; padding: 28px 26px; text-align: center; background: #fffcf7; border: 1px solid var(--line); border-radius: 22px; box-shadow: 0 20px 60px rgba(74, 47, 58, 0.16); }
-.intro-card h2 { margin: 6px 0 10px; font: 800 26px/1.15 Montserrat, var(--font); text-wrap: balance; }
+.intro-card h2 { margin: 0 0 12px; font: 600 30px/1.15 "Playfair Display", Georgia, serif; text-wrap: balance; }
 .intro-card p { margin: 0 0 18px; font-size: 14.5px; line-height: 1.6; color: var(--ink-soft); }
-.intro-card .eyebrow { margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--rose); }
 .intro-card .load-error { margin: 14px 0 0; color: #b3261e; }
 
 @media (hover: none), (max-width: 760px) {
@@ -87,6 +86,6 @@ button.primary:hover { background: #c94470; }
   .hint-touch { display: block; top: auto; right: auto; left: 16px; bottom: calc(max(14px, env(safe-area-inset-bottom)) + 108px); }
   .toolbar { flex-direction: column-reverse; align-items: stretch; }
   .actions { justify-content: flex-end; }
-  .title h1 { font-size: 18px; }
+  .title h1 { font-size: 20px; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }

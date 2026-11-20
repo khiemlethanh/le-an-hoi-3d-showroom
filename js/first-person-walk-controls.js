@@ -1,11 +1,14 @@
-import { WALK_BOUNDS, PEDESTALS, PEDESTAL_RADIUS, SEATING, TENT } from './scene-config.js';
+import { WALK_BOUNDS, TRAYS, TRAY, VASES, SEATING, TENT } from './scene-config.js';
 
 const EYE_HEIGHT = 1.6, BODY_RADIUS = 0.3, WALK_SPEED = 2.6, RUN_SPEED = 5, TURN_SPEED = 1.6;
 const LOOK_SENSITIVITY = 0.0042, PITCH_LIMIT = 1.1, JOYSTICK_RANGE = 50;
 
-// Obstacles: pedestals, tent posts (circles) and the two seating blocks (boxes).
+// Obstacles: tray stands, vases, tent posts (circles) and the two seating blocks (boxes).
 function buildColliders() {
-  const circles = PEDESTALS.map(p => ({ x: p.x, z: p.z, r: PEDESTAL_RADIUS }));
+  const circles = [
+    ...TRAYS.map(t => ({ x: t.x, z: t.z, r: TRAY.standWidth / 2 })),
+    ...VASES.map(v => ({ x: v.x, z: v.z, r: v.radius * v.scale })),
+  ];
   for (let i = 0; i < 4; i++) for (const side of [-1, 1]) {
     circles.push({ x: side * TENT.halfWidth, z: TENT.zBack + ((TENT.zFront - TENT.zBack) * i) / 3, r: 0.2 });
   }
